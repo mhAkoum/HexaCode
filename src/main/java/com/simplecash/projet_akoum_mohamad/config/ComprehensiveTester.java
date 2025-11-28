@@ -1,13 +1,17 @@
 package com.simplecash.projet_akoum_mohamad.config;
 
 import com.simplecash.projet_akoum_mohamad.domain.*;
+import com.simplecash.projet_akoum_mohamad.dto.AccountSummaryDTO;
+import com.simplecash.projet_akoum_mohamad.dto.AuditReportDTO;
 import com.simplecash.projet_akoum_mohamad.exception.*;
 import com.simplecash.projet_akoum_mohamad.repository.*;
 import com.simplecash.projet_akoum_mohamad.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -20,14 +24,14 @@ public class ComprehensiveTester {
     
     private static final Logger logger = LoggerFactory.getLogger(ComprehensiveTester.class);
     
-    // @Bean
-    // @Order(100)
-    // Disabled - uncomment to run comprehensive tests
+    @Bean
+    @Order(100)
     CommandLineRunner comprehensiveTest(
             ClientService clientService,
             AdvisorService advisorService,
             AccountService accountService,
             TransferService transferService,
+            AuditService auditService,
             ClientRepository clientRepository,
             AdvisorRepository advisorRepository,
             AccountRepository accountRepository,
@@ -48,6 +52,7 @@ public class ComprehensiveTester {
                 passedTests += testTransferLogging();
                 passedTests += testCardManagement(clientRepository, cardRepository);
                 passedTests += testClientDeletionValidation(clientService, accountService, clientRepository, cardRepository);
+                passedTests += testAuditService(auditService);
                 
             } catch (Exception e) {
                 logger.error("Critical error during testing: {}", e.getMessage(), e);
@@ -109,7 +114,7 @@ public class ComprehensiveTester {
                     logger.info("    V- Client count updated correctly: {}", newCount);
                     passed++;
                 } else {
-                    logger.warn("  ✗ Client count mismatch: expected {}, got {}", currentCount + 1, newCount);
+                    logger.warn("  X- Client count mismatch: expected {}, got {}", currentCount + 1, newCount);
                 }
             }
             
@@ -125,14 +130,14 @@ public class ComprehensiveTester {
                             tchoupiId
                     );
                 }
-                logger.warn("  ✗ Should have thrown AdvisorFullException!");
+                logger.warn("  X- Should have thrown AdvisorFullException!");
             } catch (AdvisorFullException e) {
                 logger.info("    V- Max 10 clients rule enforced: {}", e.getMessage());
                 passed++;
             }
             
         } catch (Exception e) {
-            logger.error("  ✗ Error in Client & Advisor tests: {}", e.getMessage());
+            logger.error("  X- Error in Client & Advisor tests: {}", e.getMessage());
         }
         
         logger.info("  [Client & Advisor Management] Completed: {} tests passed\n", passed);
@@ -172,7 +177,7 @@ public class ComprehensiveTester {
                         initialBalance, creditAmount, afterCredit.getBalance());
                 passed++;
             } else {
-                logger.warn("  ✗ Credit balance mismatch: expected {}, got {}", 
+                logger.warn("  X- Credit balance mismatch: expected {}, got {}", 
                         expectedBalance, afterCredit.getBalance());
             }
             
@@ -185,14 +190,14 @@ public class ComprehensiveTester {
                         afterCredit.getBalance(), debitAmount, afterDebit.getBalance());
                 passed++;
             } else {
-                logger.warn("  ✗ Debit balance mismatch: expected {}, got {}", 
+                logger.warn("  X- Debit balance mismatch: expected {}, got {}", 
                         expectedAfterDebit, afterDebit.getBalance());
             }
             
             try {
                 BigDecimal hugeAmount = afterDebit.getBalance().add(new BigDecimal("100000.00"));
                 accountService.debit(testAccount.getId(), hugeAmount);
-                logger.warn("  ✗ Should have thrown InsufficientFundsException!");
+                logger.warn("  X- Should have thrown InsufficientFundsException!");
             } catch (InsufficientFundsException e) {
                 logger.info("    V- Insufficient funds exception thrown correctly");
                 passed++;
@@ -200,7 +205,7 @@ public class ComprehensiveTester {
             
             try {
                 accountService.credit(testAccount.getId(), BigDecimal.ZERO);
-                logger.warn("  ✗ Should have thrown IllegalArgumentException for zero amount!");
+                logger.warn("  X- Should have thrown IllegalArgumentException for zero amount!");
             } catch (IllegalArgumentException e) {
                 logger.info("    V- Zero amount validation works: {}", e.getMessage());
                 passed++;
@@ -210,7 +215,7 @@ public class ComprehensiveTester {
             logger.info("    V- Restored account to initial balance");
             
         } catch (Exception e) {
-            logger.error("  ✗ Error in Account Operations tests: {}", e.getMessage());
+            logger.error("  X- Error in Account Operations tests: {}", e.getMessage());
         }
         
         logger.info("  [Account Credit & Debit Operations] Completed: {} tests passed\n", passed);
@@ -268,7 +273,7 @@ public class ComprehensiveTester {
                 logger.info("    Target: {} -> {}", targetInitial, targetAfter.getBalance());
                 passed++;
             } else {
-                logger.warn("  ✗ Transfer balance mismatch");
+                logger.warn("  X- Transfer balance mismatch");
             }
             
             BigDecimal balanceBeforeFailed = sourceAfter.getBalance();
@@ -277,7 +282,7 @@ public class ComprehensiveTester {
             try {
                 BigDecimal hugeAmount = balanceBeforeFailed.add(new BigDecimal("50000.00"));
                 transferService.transfer(sourceAccount.getId(), targetAccount.getId(), hugeAmount);
-                logger.warn("  ✗ Should have thrown InsufficientFundsException!");
+                logger.warn("  X- Should have thrown InsufficientFundsException!");
             } catch (InsufficientFundsException e) {
                 logger.info("    V- Failed transfer throws InsufficientFundsException");
                 
@@ -289,20 +294,20 @@ public class ComprehensiveTester {
                     logger.info("    V- Transaction rolled back - both accounts unchanged");
                     passed++;
                 } else {
-                    logger.warn("  ✗ Transaction did not roll back correctly!");
+                    logger.warn("  X- Transaction did not roll back correctly!");
                 }
             }
             
             try {
                 transferService.transfer(sourceAccount.getId(), sourceAccount.getId(), new BigDecimal("50.00"));
-                logger.warn("  ✗ Should have thrown IllegalArgumentException for same account!");
+                logger.warn("  X- Should have thrown IllegalArgumentException for same account!");
             } catch (IllegalArgumentException e) {
                 logger.info("    V- Same account transfer validation works");
                 passed++;
             }
             
         } catch (Exception e) {
-            logger.error("  ✗ Error in Transfer Service tests: {}", e.getMessage());
+            logger.error("  X- Error in Transfer Service tests: {}", e.getMessage());
         }
         
         logger.info("  [Internal Account Transfers] Completed: {} tests passed\n", passed);
@@ -334,7 +339,7 @@ public class ComprehensiveTester {
                 logger.info("    V- Transfer log contains SUCCESS entries");
                 passed++;
             } else {
-                logger.warn("  ✗ No SUCCESS transfer logs found");
+                logger.warn("  X- No SUCCESS transfer logs found");
             }
             
             boolean hasStartedLog = logLines.stream()
@@ -344,11 +349,11 @@ public class ComprehensiveTester {
                 logger.info("    V- Transfer log contains STARTED entries");
                 passed++;
             } else {
-                logger.warn("  ✗ No STARTED transfer logs found");
+                logger.warn("  X- No STARTED transfer logs found");
             }
             
         } catch (Exception e) {
-            logger.error("  ✗ Error checking transfer logs: {}", e.getMessage());
+            logger.error("  X- Error checking transfer logs: {}", e.getMessage());
         }
         
         logger.info("  [Transfer Logging to Dedicated Log File] Completed: {} tests passed\n", passed);
@@ -396,7 +401,7 @@ public class ComprehensiveTester {
             passed++;
             
         } catch (Exception e) {
-            logger.error("  ✗ Error in Card Management tests: {}", e.getMessage());
+            logger.error("  X- Error in Card Management tests: {}", e.getMessage());
         }
         
         logger.info("  [Card Entity & Client Relationship] Completed: {} tests passed\n", passed);
@@ -446,7 +451,7 @@ public class ComprehensiveTester {
             if (currentBalance.compareTo(BigDecimal.ZERO) != 0 || savingsBalance.compareTo(BigDecimal.ZERO) != 0) {
                 try {
                     clientService.deleteClient(testClient.getId());
-                    logger.warn("  ✗ Should have thrown AccountBalanceNotZeroException!");
+                    logger.warn("  X- Should have thrown AccountBalanceNotZeroException!");
                 } catch (AccountBalanceNotZeroException e) {
                     logger.info("    V- Deletion blocked with non-zero balance: {}", e.getMessage());
                     passed++;
@@ -463,10 +468,92 @@ public class ComprehensiveTester {
             }
             
         } catch (Exception e) {
-            logger.error("  ✗ Error in Client Deletion Validation tests: {}", e.getMessage());
+            logger.error("  X- Error in Client Deletion Validation tests: {}", e.getMessage());
         }
         
         logger.info("  [Client Deletion with Balance Validation] Completed: {} tests passed\n", passed);
+        return passed;
+    }
+    
+    private int testAuditService(AuditService auditService) {
+        logger.info("[Testing Account Audit Service]");
+        logger.info("─────────────────────────────────────────────");
+        
+        int passed = 0;
+        
+        try {
+            AuditReportDTO report = auditService.auditAllAccounts();
+            
+            logger.info("    V- Total accounts audited: {}", report.getTotalAccountsAudited());
+            passed++;
+            
+            if (report.getTotalAccountsAudited() > 0) {
+                logger.info("    V- Credit accounts found: {}", report.getCreditAccounts().size());
+                logger.info("    V- Debit accounts found: {}", report.getDebitAccounts().size());
+                logger.info("    V- Threshold violations: {}", report.getThresholdViolations().size());
+                logger.info("    V- Total credits: {}", report.getTotalCredits());
+                logger.info("    V- Total debits: {}", report.getTotalDebits());
+                passed += 5;
+                
+                BigDecimal calculatedCredits = report.getCreditAccounts().stream()
+                        .map(acc -> acc.getBalance())
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+                BigDecimal calculatedDebits = report.getDebitAccounts().stream()
+                        .map(acc -> acc.getBalance())
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+                if (report.getTotalCredits().compareTo(calculatedCredits) == 0) {
+                    logger.info("    V- Total credits calculation is correct");
+                    passed++;
+                } else {
+                    logger.warn("X- Total credits mismatch: expected {}, got {}", 
+                            calculatedCredits, report.getTotalCredits());
+                }
+                
+                if (report.getTotalDebits().compareTo(calculatedDebits) == 0) {
+                    logger.info("    V- Total debits calculation is correct");
+                    passed++;
+                } else {
+                    logger.warn("X- Total debits mismatch: expected {}, got {}", 
+                            calculatedDebits, report.getTotalDebits());
+                }
+                
+                if (!report.getCreditAccounts().isEmpty()) {
+                    logger.info("    V- Sample credit account: {} (Balance: {})", 
+                            report.getCreditAccounts().get(0).getAccountNumber(),
+                            report.getCreditAccounts().get(0).getBalance());
+                    passed++;
+                }
+                
+                if (!report.getDebitAccounts().isEmpty()) {
+                    logger.info("    V- Sample debit account: {} (Balance: {})", 
+                            report.getDebitAccounts().get(0).getAccountNumber(),
+                            report.getDebitAccounts().get(0).getBalance());
+                    passed++;
+                }
+                
+                if (!report.getThresholdViolations().isEmpty()) {
+                    AccountSummaryDTO violation = report.getThresholdViolations().get(0);
+                    logger.info("    V- Sample violation: {} (Balance: {}, Client: {} {})", 
+                            violation.getAccountNumber(),
+                            violation.getBalance(),
+                            violation.getClientName(),
+                            violation.getClientType());
+                    passed++;
+                } else {
+                    logger.info("    V- No threshold violations found (all accounts within limits)");
+                    passed++;
+                }
+            } else {
+                logger.warn("   X- No accounts found to audit");
+            }
+            
+        } catch (Exception e) {
+            logger.error("  X- Error in Audit Service tests: {}", e.getMessage());
+        }
+        
+        logger.info("  [Account Audit Service] Completed: {} tests passed\n", passed);
         return passed;
     }
 }
