@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Configuration
@@ -22,7 +23,9 @@ public class DataInitializer {
             AgencyRepository agencyRepository,
             ManagerRepository managerRepository,
             AdvisorRepository advisorRepository,
-            ClientRepository clientRepository) {
+            ClientRepository clientRepository,
+            CurrentAccountRepository currentAccountRepository,
+            SavingsAccountRepository savingsAccountRepository) {
         
         return args -> {
             logger.info("Initializing test data...");
@@ -67,6 +70,27 @@ public class DataInitializer {
             dora.addClient(marsGuy);
             clientRepository.save(marsGuy);
             logger.info("Created client: {} for advisor: {}", marsGuy.getName(), dora.getName());
+            
+            CurrentAccount johnCurrent = new CurrentAccount("CA001", BigDecimal.ZERO, LocalDate.now());
+            johnCurrent.setClient(john);
+            john.setCurrentAccount(johnCurrent);
+            currentAccountRepository.save(johnCurrent);
+            logger.info("Created current account {} for client {} with overdraft limit: {}", 
+                    johnCurrent.getAccountNumber(), john.getName(), johnCurrent.getOverdraftLimit());
+            
+            SavingsAccount johnSavings = new SavingsAccount("SA001", BigDecimal.ZERO, LocalDate.now());
+            johnSavings.setClient(john);
+            john.setSavingsAccount(johnSavings);
+            savingsAccountRepository.save(johnSavings);
+            logger.info("Created savings account {} for client {} with interest rate: {}%", 
+                    johnSavings.getAccountNumber(), john.getName(), johnSavings.getInterestRate());
+            
+            CurrentAccount epitaCurrent = new CurrentAccount("CA002", new BigDecimal("5000.00"), LocalDate.now());
+            epitaCurrent.setClient(epita);
+            epita.setCurrentAccount(epitaCurrent);
+            currentAccountRepository.save(epitaCurrent);
+            logger.info("Created current account {} for client {} with overdraft limit: {}", 
+                    epitaCurrent.getAccountNumber(), epita.getName(), epitaCurrent.getOverdraftLimit());
             
             logger.info("Test data initialization completed!");
             logger.info("Agency: {} with {} advisors and {} total clients", 

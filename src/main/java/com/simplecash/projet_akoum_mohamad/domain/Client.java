@@ -30,6 +30,12 @@ public class Client {
     @JoinColumn(name = "advisor_id", nullable = false)
     private Advisor advisor;
     
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private CurrentAccount currentAccount;
+    
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private SavingsAccount savingsAccount;
+    
     public Client() {
     }
     
@@ -94,6 +100,22 @@ public class Client {
     
     public void setAdvisor(Advisor advisor) {
         this.advisor = advisor;
+    }
+    
+    public CurrentAccount getCurrentAccount() {
+        return currentAccount;
+    }
+    
+    public void setCurrentAccount(CurrentAccount currentAccount) {
+        this.currentAccount = currentAccount;
+    }
+    
+    public SavingsAccount getSavingsAccount() {
+        return savingsAccount;
+    }
+    
+    public void setSavingsAccount(SavingsAccount savingsAccount) {
+        this.savingsAccount = savingsAccount;
     }
 }
 
