@@ -1,71 +1,62 @@
 package com.simplecash.projet_akoum_mohamad.adapter.out.persistence.adapter;
 
-import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.entity.*;
+import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.entity.AccountEntity;
 import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.mapper.AccountPersistenceMapper;
 import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.repository.AccountJpaRepository;
-import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.repository.ClientJpaRepository;
 import com.simplecash.projet_akoum_mohamad.application.port.out.AccountRepositoryPort;
 import com.simplecash.projet_akoum_mohamad.domain.model.Account;
-import com.simplecash.projet_akoum_mohamad.domain.model.CurrentAccount;
-import com.simplecash.projet_akoum_mohamad.domain.model.SavingsAccount;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Component
+@Transactional
 public class AccountPersistenceAdapter implements AccountRepositoryPort {
     
-    private final AccountJpaRepository jpaRepository;
-    private final ClientJpaRepository clientJpaRepository;
-    private final AccountPersistenceMapper mapper;
+    private final AccountJpaRepository repository;
     
-    public AccountPersistenceAdapter(AccountJpaRepository jpaRepository,
-                                    ClientJpaRepository clientJpaRepository,
-                                    AccountPersistenceMapper mapper) {
-        this.jpaRepository = jpaRepository;
-        this.clientJpaRepository = clientJpaRepository;
-        this.mapper = mapper;
+    public AccountPersistenceAdapter(AccountJpaRepository repository) {
+        this.repository = repository;
     }
     
     @Override
     public Account save(Account account) {
-        AccountEntity entity = mapper.toEntity(account);
+        AccountEntity entity = AccountPersistenceMapper.toEntity(account);
         
-        // Ensure client relationship is properly set
-        if (account instanceof CurrentAccount) {
-            CurrentAccount currentAccount = (CurrentAccount) account;
-            if (currentAccount.getClient() != null && currentAccount.getClient().getId() != null) {
-                ClientEntity clientEntity = clientJpaRepository.findById(currentAccount.getClient().getId())
-                        .orElse(null);
-                if (clientEntity != null && entity instanceof CurrentAccountEntity) {
-                    ((CurrentAccountEntity) entity).setClient(clientEntity);
-                }
+        // Handle client relationship if it's a CurrentAccount or SavingsAccount
+        if (account instanceof com.simplecash.projet_akoum_mohamad.domain.model.CurrentAccount) {
+            com.simplecash.projet_akoum_mohamad.domain.model.CurrentAccount currentAccount = 
+                    (com.simplecash.projet_akoum_mohamad.domain.model.CurrentAccount) account;
+            if (currentAccount.getClient() != null) {
+                ((com.simplecash.projet_akoum_mohamad.adapter.out.persistence.entity.CurrentAccountEntity) entity)
+                        .setClient(com.simplecash.projet_akoum_mohamad.adapter.out.persistence.mapper.ClientPersistenceMapper
+                                .toEntity(currentAccount.getClient()));
             }
-        } else if (account instanceof SavingsAccount) {
-            SavingsAccount savingsAccount = (SavingsAccount) account;
-            if (savingsAccount.getClient() != null && savingsAccount.getClient().getId() != null) {
-                ClientEntity clientEntity = clientJpaRepository.findById(savingsAccount.getClient().getId())
-                        .orElse(null);
-                if (clientEntity != null && entity instanceof SavingsAccountEntity) {
-                    ((SavingsAccountEntity) entity).setClient(clientEntity);
-                }
+        } else if (account instanceof com.simplecash.projet_akoum_mohamad.domain.model.SavingsAccount) {
+            com.simplecash.projet_akoum_mohamad.domain.model.SavingsAccount savingsAccount = 
+                    (com.simplecash.projet_akoum_mohamad.domain.model.SavingsAccount) account;
+            if (savingsAccount.getClient() != null) {
+                ((com.simplecash.projet_akoum_mohamad.adapter.out.persistence.entity.SavingsAccountEntity) entity)
+                        .setClient(com.simplecash.projet_akoum_mohamad.adapter.out.persistence.mapper.ClientPersistenceMapper
+                                .toEntity(savingsAccount.getClient()));
             }
         }
         
-        AccountEntity saved = jpaRepository.save(entity);
-        return mapper.toDomain(saved);
+        AccountEntity saved = repository.save(entity);
+        return AccountPersistenceMapper.toDomain(saved);
     }
     
     @Override
     public Optional<Account> findById(Long id) {
-        return jpaRepository.findById(id)
-                .map(mapper::toDomain);
+        return repository.findById(id)
+                .map(AccountPersistenceMapper::toDomain);
     }
     
     @Override
     public Optional<Account> findByAccountNumber(String accountNumber) {
-        return jpaRepository.findByAccountNumber(accountNumber)
-                .map(mapper::toDomain);
+        return repository.findByAccountNumber(accountNumber)
+                .map(AccountPersistenceMapper::toDomain);
     }
 }
 

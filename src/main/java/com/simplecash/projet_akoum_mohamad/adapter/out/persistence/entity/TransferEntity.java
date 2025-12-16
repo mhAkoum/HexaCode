@@ -32,6 +32,14 @@ public class TransferEntity {
     public TransferEntity() {
     }
     
+    public TransferEntity(AccountEntity sourceAccount, AccountEntity targetAccount, BigDecimal amount, LocalDateTime timestamp, String status) {
+        this.sourceAccount = sourceAccount;
+        this.targetAccount = targetAccount;
+        this.amount = amount;
+        this.timestamp = timestamp;
+        this.status = status;
+    }
+    
     public Long getId() {
         return id;
     }

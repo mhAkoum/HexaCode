@@ -28,6 +28,11 @@ public class AgencyEntity {
     public AgencyEntity() {
     }
     
+    public AgencyEntity(String code, LocalDate creationDate) {
+        this.code = code;
+        this.creationDate = creationDate;
+    }
+    
     public Long getId() {
         return id;
     }
@@ -58,6 +63,9 @@ public class AgencyEntity {
     
     public void setManager(ManagerEntity manager) {
         this.manager = manager;
+        if (manager != null) {
+            manager.setAgency(this);
+        }
     }
     
     public List<AdvisorEntity> getAdvisors() {
@@ -66,6 +74,16 @@ public class AgencyEntity {
     
     public void setAdvisors(List<AdvisorEntity> advisors) {
         this.advisors = advisors;
+    }
+    
+    public void addAdvisor(AdvisorEntity advisor) {
+        advisors.add(advisor);
+        advisor.setAgency(this);
+    }
+    
+    public void removeAdvisor(AdvisorEntity advisor) {
+        advisors.remove(advisor);
+        advisor.setAgency(null);
     }
 }
 

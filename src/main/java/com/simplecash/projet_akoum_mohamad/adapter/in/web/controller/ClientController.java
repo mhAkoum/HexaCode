@@ -17,30 +17,30 @@ import java.util.stream.Collectors;
 public class ClientController {
     
     private final ClientUseCase clientUseCase;
-    private final ClientWebMapper mapper;
     
-    public ClientController(ClientUseCase clientUseCase, ClientWebMapper mapper) {
+    public ClientController(ClientUseCase clientUseCase) {
         this.clientUseCase = clientUseCase;
-        this.mapper = mapper;
     }
     
     @GetMapping
     public ResponseEntity<List<ClientDTO>> getAllClients() {
         List<ClientDTO> clients = clientUseCase.getAllClients().stream()
-                .map(mapper::toDTO)
+                .map(ClientDTO::new)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(clients);
     }
     
     @GetMapping("/{id}")
     public ResponseEntity<ClientDTO> getClientById(@PathVariable Long id) {
-        ClientDTO client = mapper.toDTO(clientUseCase.getClientById(id));
+        ClientDTO client = new ClientDTO(clientUseCase.getClientById(id));
         return ResponseEntity.ok(client);
     }
     
     @PostMapping
     public ResponseEntity<ClientDTO> createClient(@RequestBody CreateClientRequest request) {
-        ClientDTO client = mapper.toDTO(clientUseCase.createClient(mapper.toCommand(request)));
+        ClientDTO client = new ClientDTO(clientUseCase.createClient(
+                ClientWebMapper.toCommand(request)
+        ));
         return ResponseEntity.status(HttpStatus.CREATED).body(client);
     }
     
@@ -48,7 +48,10 @@ public class ClientController {
     public ResponseEntity<ClientDTO> updateClient(
             @PathVariable Long id,
             @RequestBody UpdateClientRequest request) {
-        ClientDTO client = mapper.toDTO(clientUseCase.updateClient(id, mapper.toCommand(request)));
+        ClientDTO client = new ClientDTO(clientUseCase.updateClient(
+                id,
+                ClientWebMapper.toCommand(request)
+        ));
         return ResponseEntity.ok(client);
     }
     

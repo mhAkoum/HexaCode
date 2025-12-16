@@ -1,4 +1,7 @@
-HELP.md
+# Ignore all .md files except README.md
+*.md
+!README.md
+
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar

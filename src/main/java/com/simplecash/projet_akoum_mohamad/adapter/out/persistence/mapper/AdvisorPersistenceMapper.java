@@ -2,12 +2,10 @@ package com.simplecash.projet_akoum_mohamad.adapter.out.persistence.mapper;
 
 import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.entity.AdvisorEntity;
 import com.simplecash.projet_akoum_mohamad.domain.model.Advisor;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AdvisorPersistenceMapper {
     
-    public Advisor toDomain(AdvisorEntity entity) {
+    public static Advisor toDomain(AdvisorEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -15,18 +13,20 @@ public class AdvisorPersistenceMapper {
         Advisor advisor = new Advisor(entity.getName(), entity.getEmail());
         advisor.setId(entity.getId());
         
+        // Relationships handled separately
+        
         return advisor;
     }
     
-    public AdvisorEntity toEntity(Advisor domain) {
+    public static AdvisorEntity toEntity(Advisor domain) {
         if (domain == null) {
             return null;
         }
         
-        AdvisorEntity entity = new AdvisorEntity();
-        entity.setId(domain.getId());
-        entity.setName(domain.getName());
-        entity.setEmail(domain.getEmail());
+        AdvisorEntity entity = new AdvisorEntity(domain.getName(), domain.getEmail());
+        if (domain.getId() != null) {
+            entity.setId(domain.getId());
+        }
         
         return entity;
     }

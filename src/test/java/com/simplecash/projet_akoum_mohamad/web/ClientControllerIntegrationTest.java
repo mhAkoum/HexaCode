@@ -1,10 +1,10 @@
 package com.simplecash.projet_akoum_mohamad.web;
 
-import com.simplecash.projet_akoum_mohamad.domain.ClientType;
-import com.simplecash.projet_akoum_mohamad.dto.CreateClientRequest;
-import com.simplecash.projet_akoum_mohamad.dto.ErrorResponse;
-import com.simplecash.projet_akoum_mohamad.repository.AdvisorRepository;
-import com.simplecash.projet_akoum_mohamad.repository.ClientRepository;
+import com.simplecash.projet_akoum_mohamad.adapter.in.web.dto.CreateClientRequest;
+import com.simplecash.projet_akoum_mohamad.adapter.in.web.dto.ErrorResponse;
+import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.repository.AdvisorJpaRepository;
+import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.repository.ClientJpaRepository;
+import com.simplecash.projet_akoum_mohamad.domain.model.ClientType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +28,10 @@ class ClientControllerIntegrationTest {
     private TestRestTemplate restTemplate;
     
     @Autowired
-    private ClientRepository clientRepository;
+    private ClientJpaRepository clientRepository;
     
     @Autowired
-    private AdvisorRepository advisorRepository;
+    private AdvisorJpaRepository advisorRepository;
     
     private String baseUrl;
     

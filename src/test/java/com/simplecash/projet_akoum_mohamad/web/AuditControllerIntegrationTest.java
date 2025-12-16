@@ -1,6 +1,6 @@
 package com.simplecash.projet_akoum_mohamad.web;
 
-import com.simplecash.projet_akoum_mohamad.dto.AuditReportDTO;
+import com.simplecash.projet_akoum_mohamad.adapter.in.web.dto.AuditReportDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

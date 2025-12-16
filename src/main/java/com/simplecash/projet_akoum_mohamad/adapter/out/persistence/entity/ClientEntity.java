@@ -1,5 +1,6 @@
 package com.simplecash.projet_akoum_mohamad.adapter.out.persistence.entity;
 
+import com.simplecash.projet_akoum_mohamad.domain.model.ClientType;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class ClientEntity {
     
     @Enumerated(EnumType.STRING)
     @Column(name = "client_type", nullable = false)
-    private com.simplecash.projet_akoum_mohamad.domain.model.ClientType clientType;
+    private ClientType clientType;
     
     @ManyToOne
     @JoinColumn(name = "advisor_id", nullable = false)
@@ -42,6 +43,14 @@ public class ClientEntity {
     private List<CardEntity> cards = new ArrayList<>();
     
     public ClientEntity() {
+    }
+    
+    public ClientEntity(String name, String address, String phone, String email, ClientType clientType) {
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.email = email;
+        this.clientType = clientType;
     }
     
     public Long getId() {
@@ -84,11 +93,11 @@ public class ClientEntity {
         this.email = email;
     }
     
-    public com.simplecash.projet_akoum_mohamad.domain.model.ClientType getClientType() {
+    public ClientType getClientType() {
         return clientType;
     }
     
-    public void setClientType(com.simplecash.projet_akoum_mohamad.domain.model.ClientType clientType) {
+    public void setClientType(ClientType clientType) {
         this.clientType = clientType;
     }
     
@@ -122,6 +131,16 @@ public class ClientEntity {
     
     public void setCards(List<CardEntity> cards) {
         this.cards = cards;
+    }
+    
+    public void addCard(CardEntity card) {
+        cards.add(card);
+        card.setClient(this);
+    }
+    
+    public void removeCard(CardEntity card) {
+        cards.remove(card);
+        card.setClient(null);
     }
 }
 

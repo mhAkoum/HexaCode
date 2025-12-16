@@ -13,16 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuditController {
     
     private final AuditUseCase auditUseCase;
-    private final AuditWebMapper mapper;
     
-    public AuditController(AuditUseCase auditUseCase, AuditWebMapper mapper) {
+    public AuditController(AuditUseCase auditUseCase) {
         this.auditUseCase = auditUseCase;
-        this.mapper = mapper;
     }
     
     @GetMapping("/accounts")
     public ResponseEntity<AuditReportDTO> auditAccounts() {
-        AuditReportDTO report = mapper.toDTO(auditUseCase.auditAllAccounts());
+        AuditReportDTO report = AuditWebMapper.toDTO(auditUseCase.auditAllAccounts());
         return ResponseEntity.ok(report);
     }
 }

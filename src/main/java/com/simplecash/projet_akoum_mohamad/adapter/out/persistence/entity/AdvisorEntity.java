@@ -28,6 +28,11 @@ public class AdvisorEntity {
     public AdvisorEntity() {
     }
     
+    public AdvisorEntity(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+    
     public Long getId() {
         return id;
     }
@@ -66,6 +71,16 @@ public class AdvisorEntity {
     
     public void setClients(List<ClientEntity> clients) {
         this.clients = clients;
+    }
+    
+    public void addClient(ClientEntity client) {
+        clients.add(client);
+        client.setAdvisor(this);
+    }
+    
+    public void removeClient(ClientEntity client) {
+        clients.remove(client);
+        client.setAdvisor(null);
     }
 }
 

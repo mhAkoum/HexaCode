@@ -2,12 +2,10 @@ package com.simplecash.projet_akoum_mohamad.adapter.out.persistence.mapper;
 
 import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.entity.CardEntity;
 import com.simplecash.projet_akoum_mohamad.domain.model.Card;
-import org.springframework.stereotype.Component;
 
-@Component
 public class CardPersistenceMapper {
     
-    public Card toDomain(CardEntity entity) {
+    public static Card toDomain(CardEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -15,18 +13,20 @@ public class CardPersistenceMapper {
         Card card = new Card(entity.getCardType(), entity.getStatus());
         card.setId(entity.getId());
         
+        // Client relationship handled separately
+        
         return card;
     }
     
-    public CardEntity toEntity(Card domain) {
+    public static CardEntity toEntity(Card domain) {
         if (domain == null) {
             return null;
         }
         
-        CardEntity entity = new CardEntity();
-        entity.setId(domain.getId());
-        entity.setCardType(domain.getCardType());
-        entity.setStatus(domain.getStatus());
+        CardEntity entity = new CardEntity(domain.getCardType(), domain.getStatus());
+        if (domain.getId() != null) {
+            entity.setId(domain.getId());
+        }
         
         return entity;
     }

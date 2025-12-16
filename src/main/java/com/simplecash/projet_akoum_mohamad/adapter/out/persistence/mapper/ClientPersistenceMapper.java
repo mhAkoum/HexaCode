@@ -2,12 +2,10 @@ package com.simplecash.projet_akoum_mohamad.adapter.out.persistence.mapper;
 
 import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.entity.ClientEntity;
 import com.simplecash.projet_akoum_mohamad.domain.model.Client;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ClientPersistenceMapper {
     
-    public Client toDomain(ClientEntity entity) {
+    public static Client toDomain(ClientEntity entity) {
         if (entity == null) {
             return null;
         }
@@ -21,21 +19,29 @@ public class ClientPersistenceMapper {
         );
         client.setId(entity.getId());
         
+        // Note: Relationships are handled separately by adapters to avoid circular dependencies
+        // The adapter will set advisor, accounts, and cards after mapping
+        
         return client;
     }
     
-    public ClientEntity toEntity(Client domain) {
+    public static ClientEntity toEntity(Client domain) {
         if (domain == null) {
             return null;
         }
         
-        ClientEntity entity = new ClientEntity();
-        entity.setId(domain.getId());
-        entity.setName(domain.getName());
-        entity.setAddress(domain.getAddress());
-        entity.setPhone(domain.getPhone());
-        entity.setEmail(domain.getEmail());
-        entity.setClientType(domain.getClientType());
+        ClientEntity entity = new ClientEntity(
+                domain.getName(),
+                domain.getAddress(),
+                domain.getPhone(),
+                domain.getEmail(),
+                domain.getClientType()
+        );
+        if (domain.getId() != null) {
+            entity.setId(domain.getId());
+        }
+        
+        // Note: Relationships are handled separately by adapters
         
         return entity;
     }

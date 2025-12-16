@@ -1,8 +1,5 @@
 package com.simplecash.projet_akoum_mohamad.adapter.in.web.dto;
 
-import com.simplecash.projet_akoum_mohamad.domain.model.Account;
-import com.simplecash.projet_akoum_mohamad.domain.model.Client;
-
 import java.math.BigDecimal;
 
 public class AccountSummaryDTO {
@@ -17,19 +14,6 @@ public class AccountSummaryDTO {
     private boolean violatesThreshold;
     
     public AccountSummaryDTO() {
-    }
-    
-    public AccountSummaryDTO(Account account, Client client, boolean violatesThreshold) {
-        this.accountId = account.getId();
-        this.accountNumber = account.getAccountNumber();
-        this.accountType = account instanceof com.simplecash.projet_akoum_mohamad.domain.model.CurrentAccount 
-                ? "CURRENT" 
-                : "SAVINGS";
-        this.balance = account.getBalance();
-        this.clientId = client.getId();
-        this.clientName = client.getName();
-        this.clientType = client.getClientType().name();
-        this.violatesThreshold = violatesThreshold;
     }
     
     public Long getAccountId() {

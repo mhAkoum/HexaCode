@@ -1,9 +1,9 @@
 package com.simplecash.projet_akoum_mohamad.web;
 
-import com.simplecash.projet_akoum_mohamad.dto.CreditRequest;
-import com.simplecash.projet_akoum_mohamad.dto.DebitRequest;
-import com.simplecash.projet_akoum_mohamad.dto.ErrorResponse;
-import com.simplecash.projet_akoum_mohamad.repository.AccountRepository;
+import com.simplecash.projet_akoum_mohamad.adapter.in.web.dto.CreditRequest;
+import com.simplecash.projet_akoum_mohamad.adapter.in.web.dto.DebitRequest;
+import com.simplecash.projet_akoum_mohamad.adapter.in.web.dto.ErrorResponse;
+import com.simplecash.projet_akoum_mohamad.adapter.out.persistence.repository.AccountJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ class AccountControllerIntegrationTest {
     private TestRestTemplate restTemplate;
     
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountJpaRepository accountRepository;
     
     private String baseUrl;
     

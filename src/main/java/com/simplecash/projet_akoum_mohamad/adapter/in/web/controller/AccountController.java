@@ -13,16 +13,14 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     
     private final AccountUseCase accountUseCase;
-    private final AccountWebMapper mapper;
     
-    public AccountController(AccountUseCase accountUseCase, AccountWebMapper mapper) {
+    public AccountController(AccountUseCase accountUseCase) {
         this.accountUseCase = accountUseCase;
-        this.mapper = mapper;
     }
     
     @GetMapping("/{id}")
     public ResponseEntity<AccountDTO> getAccountById(@PathVariable Long id) {
-        AccountDTO account = mapper.toDTO(accountUseCase.getAccountById(id));
+        AccountDTO account = new AccountDTO(accountUseCase.getAccountById(id));
         return ResponseEntity.ok(account);
     }
     
@@ -30,7 +28,9 @@ public class AccountController {
     public ResponseEntity<AccountDTO> creditAccount(
             @PathVariable Long id,
             @RequestBody CreditRequest request) {
-        AccountDTO account = mapper.toDTO(accountUseCase.creditAccount(mapper.toCommand(id, request)));
+        AccountDTO account = new AccountDTO(accountUseCase.creditAccount(
+                AccountWebMapper.toCommand(id, request)
+        ));
         return ResponseEntity.ok(account);
     }
     
@@ -38,7 +38,9 @@ public class AccountController {
     public ResponseEntity<AccountDTO> debitAccount(
             @PathVariable Long id,
             @RequestBody DebitRequest request) {
-        AccountDTO account = mapper.toDTO(accountUseCase.debitAccount(mapper.toCommand(id, request)));
+        AccountDTO account = new AccountDTO(accountUseCase.debitAccount(
+                AccountWebMapper.toCommand(id, request)
+        ));
         return ResponseEntity.ok(account);
     }
 }
