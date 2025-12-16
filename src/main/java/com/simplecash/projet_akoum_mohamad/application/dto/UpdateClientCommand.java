@@ -1,0 +1,63 @@
+package com.simplecash.projet_akoum_mohamad.application.dto;
+
+import com.simplecash.projet_akoum_mohamad.domain.model.ClientType;
+
+public class UpdateClientCommand {
+    private String name;
+    private String address;
+    private String phone;
+    private String email;
+    private ClientType clientType;
+    
+    public UpdateClientCommand() {
+    }
+    
+    public UpdateClientCommand(String name, String address, String phone, String email, ClientType clientType) {
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.email = email;
+        this.clientType = clientType;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public String getAddress() {
+        return address;
+    }
+    
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    
+    public String getPhone() {
+        return phone;
+    }
+    
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    public ClientType getClientType() {
+        return clientType;
+    }
+    
+    public void setClientType(ClientType clientType) {
+        this.clientType = clientType;
+    }
+}
+
